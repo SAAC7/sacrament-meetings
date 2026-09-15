@@ -5,94 +5,94 @@ import { SacramentMeeting } from './types';
 const meetings: SacramentMeeting[] = [
   {
     id: 1,
-    date: '2026-09-20', // Usa fechas cercanas a tu fecha actual
+    date: '2026-09-20',
     meetingType: 'regular',
-    presiding: 'Obispo Smith',
-    conducting: 'Hermano Jones',
-    announcements: ['Actividad de jóvenes el miércoles', 'Limpieza del centro de estaca el sábado'],
-    openingHymn: { number: 85, title: 'Qué firmes cimientos' },
-    openingPrayer: 'Hermana Anderson',
-    wardBusiness: [{ description: 'Relevo del Hermano White de la Escuela Dominical' }],
+    presiding: 'Bishop Smith',
+    conducting: 'Brother Jones',
+    announcements: ['Youth activity on Wednesday', 'Stake center cleaning on Saturday'],
+    openingHymn: { number: 85, title: 'How Firm a Foundation' },
+    openingPrayer: 'Sister Anderson',
+    wardBusiness: [{ description: 'Release of Brother White from the Sunday School' }],
     stakeBusiness: false,
-    sacramentHymn: { number: 105, title: 'Asombroso es el favor' },
+    sacramentHymn: { number: 172, title: 'In Humility, Our Savior' }, // Official Sacrament Hymn
     speakers: [
-      { name: 'Hermano Clark', topic: 'La Fe', type: 'speaker' },
-      { name: 'Coro del Barrio', topic: 'Yo te preciso', type: 'musical-number' },
-      { name: 'Hermana Clark', topic: 'Perseverar hasta el fin', type: 'speaker' }
+      { name: 'Brother Clark', topic: 'Faith', type: 'speaker' },
+      { name: 'Ward Choir', topic: 'I Need Thee Every Hour', type: 'musical-number' },
+      { name: 'Sister Clark', topic: 'Enduring to the End', type: 'speaker' }
     ],
-    closingHymn: { number: 89, title: 'Dios os guarde' },
-    closingPrayer: 'Hermano Davis'
+    closingHymn: { number: 152, title: 'God Be with You Till We Meet Again' },
+    closingPrayer: 'Brother Davis'
   },
   {
     id: 2,
     date: '2026-09-06',
     meetingType: 'testimony',
-    presiding: 'Obispo Smith',
-    conducting: 'Obispo Smith',
-    announcements: ['Ayuno misional'],
-    openingHymn: { number: 2, title: 'El Espíritu de Dios' },
-    openingPrayer: 'Hermano Pérez',
+    presiding: 'Bishop Smith',
+    conducting: 'Bishop Smith',
+    announcements: ['Ward Mission Fast'],
+    openingHymn: { number: 2, title: 'The Spirit of God' },
+    openingPrayer: 'Brother Perez',
     wardBusiness: [],
     stakeBusiness: false,
-    sacramentHymn: { number: 108, title: 'Jesús de Nazaret' },
-    speakers: [], // En reunión de testimonio no hay discursantes fijos
-    closingHymn: { number: 177, title: 'Testimonio' },
-    closingPrayer: 'Hermana Gómez'
+    sacramentHymn: { number: 169, title: 'As Now We Take the Sacrament' }, // Official Sacrament Hymn
+    speakers: [], 
+    closingHymn: { number: 137, title: 'Testimony' },
+    closingPrayer: 'Sister Gomez'
   },
   {
     id: 3,
     date: '2026-09-13',
     meetingType: 'stake',
-    presiding: 'Presidente Johnson',
-    conducting: 'Presidente Johnson',
+    presiding: 'President Johnson',
+    conducting: 'President Johnson',
     announcements: [],
-    openingHymn: { number: 5, title: 'Oh Dios de Israel' },
-    openingPrayer: 'Hermano Lee',
+    openingHymn: { number: 5, title: 'High on the Mountain Top' },
+    openingPrayer: 'Brother Lee',
     wardBusiness: [],
     stakeBusiness: true,
-    sacramentHymn: { number: 110, title: 'En memoria de tu muerte' },
+    sacramentHymn: { number: 175, title: 'O God, the Eternal Father' }, // Official Sacrament Hymn
     speakers: [
-      { name: 'Presidente Johnson', topic: 'Asuntos de Estaca', type: 'speaker' }
+      { name: 'President Johnson', topic: 'Stake Business', type: 'speaker' }
     ],
-    closingHymn: { number: 152, title: 'Bandera de Sión' },
-    closingPrayer: 'Hermana Lee'
+    closingHymn: { number: 249, title: 'Called to Serve' },
+    closingPrayer: 'Sister Lee'
   },
   {
     id: 4,
     date: '2026-09-27',
     meetingType: 'regular',
-    presiding: 'Obispo Smith',
-    conducting: 'Primer Consejero',
-    announcements: ['Noche de hogar de barrio'],
-    openingHymn: { number: 17, title: 'Bandera de Sión' },
-    openingPrayer: 'Hermana White',
-    wardBusiness: [{ description: 'Sostenimiento de la nueva presidencia de la Primaria' }],
+    presiding: 'Bishop Smith',
+    conducting: 'First Counselor',
+    announcements: ['Ward Family Home Evening'],
+    openingHymn: { number: 26, title: "Joseph Smith's First Prayer" },
+    openingPrayer: 'Sister White',
+    wardBusiness: [{ description: 'Sustaining of the new Primary presidency' }],
     stakeBusiness: false,
-    sacramentHymn: { number: 104, title: 'Jesús, en la corte celestial' },
+    sacramentHymn: { number: 193, title: 'I Stand All Amazed' }, // Official Sacrament Hymn
     speakers: [
-      { name: 'Hermano Martínez', topic: 'Historia Familiar', type: 'speaker' },
-      { name: 'Hermana Martínez', topic: 'La obra del Templo', type: 'speaker' }
+      { name: 'Brother Martinez', topic: 'Family History', type: 'speaker' },
+      { name: 'Sister Martinez', topic: 'Temple Work', type: 'speaker' }
     ],
-    closingHymn: { number: 4, title: 'Ya regocijemos' },
-    closingPrayer: 'Hermano Black'
+    closingHymn: { number: 58, title: 'Come, Ye Children of the Lord' },
+    closingPrayer: 'Brother Black'
   },
   {
     id: 5,
     date: '2026-10-04',
     meetingType: 'general',
-    presiding: 'Primera Presidencia',
-    conducting: 'Primera Presidencia',
+    presiding: 'First Presidency',
+    conducting: 'First Presidency',
     announcements: [],
-    openingHymn: { number: 13, title: 'Te damos Señor nuestras gracias' },
-    openingPrayer: 'Por anunciar',
+    openingHymn: { number: 19, title: 'We Thank Thee, O God, for a Prophet' },
+    openingPrayer: 'To be announced',
     wardBusiness: [],
     stakeBusiness: false,
-    sacramentHymn: { number: 0, title: 'N/A' }, // No hay sacramento en Conf. General
+    sacramentHymn: { number: 0, title: 'N/A' }, 
     speakers: [
-      { name: 'Autoridades Generales', topic: 'Conferencia General', type: 'speaker' }
+      { name: 'General Authorities', topic: 'General Conference', type: 'speaker' }
     ],
-    closingHymn: { number: 153, title: 'Dulce tu obra es, Señor' },
-    closingPrayer: 'Por anunciar'
+    closingHymn: { number: 147, title: 'Sweet Is the Work' },
+    closingPrayer: 'To be announced'
   }
 ];
 
