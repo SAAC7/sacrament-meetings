@@ -19,21 +19,34 @@ function getThisWeekSundayISO(): string {
 }
 
 export default async function CurrentMeetingPage() {
+  // Obtener la fecha del domingo de esta semana (YYYY-MM-DD)
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0 es Domingo
+  const distanceToSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+  
+  const currentSunday = new Date(today);
+  currentSunday.setDate(today.getDate() + distanceToSunday);
   const currentSundayStr = getThisWeekSundayISO();
-  const meetings = getMeetings();
 
-  // 1. Busca la reunión que coincida con el domingo de esta semana
+  // 1. IMPORTANTE: Usar await porque getMeetings() es asíncrona
+  const meetings = await getMeetings();
+
+  // 2. Buscar la reunión de este domingo
   let meeting = meetings.find((m) => m.date === currentSundayStr);
 
-  // 2. Fallback: Si no existe reunión para esa fecha exacta en los datos simulados,
-  //    redirige a la primera reunión de la lista para evitar un 404
+  // 3. Fallback: Si no existe reunión para hoy, redirige a la primera
   if (!meeting && meetings.length > 0) {
     meeting = meetings[0];
   }
 
+  // 4. Redirigir al detalle de la reunión
   if (meeting) {
     redirect(`/meetings/${meeting.id}`);
   }
 
-  redirect('/meetings');
+  return (
+    <main className="max-w-4xl mx-auto p-6 text-center">
+      <p className="text-gray-500">No meetings available.</p>
+    </main>
+  );
 }
