@@ -1,9 +1,9 @@
 // components/MeetingForm.tsx
 'use client';
 
-import { useActionState } from 'react';
+import { useState, useActionState } from 'react';
 import { createMeeting, updateMeeting, FormState } from '@/lib/actions';
-import { SacramentMeeting } from '@/lib/types';
+import { SacramentMeeting, SpeakerItem } from '@/lib/types';
 
 interface MeetingFormProps {
   initialData?: SacramentMeeting;
@@ -18,16 +18,72 @@ export default function MeetingForm({ initialData }: MeetingFormProps) {
 
   const [state, formAction, isPending] = useActionState(actionToUse, initialState);
 
+  // Estado dinámico para manejar discursantes y números musicales
+  const [speakers, setSpeakers] = useState<SpeakerItem[]>(
+    initialData?.speakers || []
+  );
+
+  // Funciones para manipular la lista de discursantes
+  const handleAddSpeaker = () => {
+    setSpeakers([...speakers, { name: '', topic: '', type: 'speaker' }]);
+  };
+
+  const handleRemoveSpeaker = (index: number) => {
+    setSpeakers(speakers.filter((_, i) => i !== index));
+  };
+
+  const handleSpeakerChange = (
+    index: number,
+    field: keyof SpeakerItem,
+    value: string
+  ) => {
+    const updated = [...speakers];
+    updated[index] = { ...updated[index], [field]: value };
+    setSpeakers(updated);
+  };
+
   // Formatear la fecha a YYYY-MM-DD
   const formattedDate = initialData?.date
     ? String(initialData.date).split('T')[0]
     : '';
 
-  // Formatear arreglos a texto multilínea
-  const initialAnnouncements = initialData?.announcements?.join('\n') || '';
-  const initialWardBusiness = initialData?.wardBusiness
-    ? initialData.wardBusiness.map((item) => item.description).join('\n')
+  // Obtener anuncios de forma segura
+  const initialAnnouncements = Array.isArray(initialData?.announcements)
+    ? initialData.announcements.join('\n')
+    : typeof initialData?.announcements === 'string'
+    ? initialData.announcements
     : '';
+
+  // Obtener asuntos del barrio de forma segura
+  const initialWardBusiness = (() => {
+    const wb = initialData?.wardBusiness;
+    if (!wb) return '';
+
+    // Si ya es un arreglo de JavaScript
+    if (Array.isArray(wb)) {
+      return wb
+        .map((item) => (typeof item === 'string' ? item : item?.description || ''))
+        .filter(Boolean)
+        .join('\n');
+    }
+
+    // Si viene como string o JSON stringificado
+    if (typeof wb === 'string') {
+      try {
+        const parsed = JSON.parse(wb);
+        if (Array.isArray(parsed)) {
+          return parsed
+            .map((item) => (typeof item === 'string' ? item : item?.description || ''))
+            .filter(Boolean)
+            .join('\n');
+        }
+      } catch {
+        return wb;
+      }
+    }
+
+    return '';
+  })();
 
   return (
     <form action={formAction} className="space-y-8 bg-white p-6 rounded-lg border border-gray-200 shadow-sm max-w-4xl mx-auto">
@@ -105,7 +161,7 @@ export default function MeetingForm({ initialData }: MeetingFormProps) {
         </div>
       </div>
 
-      {/* SECCIÓN 2: Himnos y Oraciones (Tipados como Hymn { number, title }) */}
+      {/* SECCIÓN 2: Himnos y Oraciones */}
       <div className="border-b border-gray-200 pb-6">
         <h2 className="text-lg font-bold text-gray-800 mb-4">Hymns & Prayers</h2>
         
@@ -199,7 +255,86 @@ export default function MeetingForm({ initialData }: MeetingFormProps) {
         </div>
       </div>
 
-      {/* SECCIÓN 3: Anuncios y Asuntos del Barrio/Estaca */}
+      {/* SECCIÓN 3: Program / Speakers (GESTIÓN DINÁMICA) */}
+      <div className="border-b border-gray-200 pb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-bold text-gray-800">Program & Speakers</h2>
+          <button
+            type="button"
+            onClick={handleAddSpeaker}
+            className="px-3 py-1.5 text-xs font-semibold bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+          >
+            + Add Program Item
+          </button>
+        </div>
+
+        {speakers.length === 0 ? (
+          <p className="text-sm text-gray-500 italic bg-gray-50 p-4 rounded text-center border border-dashed border-gray-300">
+  No speakers or musical numbers added yet. Click &quot;+ Add Program Item&quot; above.
+</p>
+        ) : (
+          <div className="space-y-3">
+            {speakers.map((speaker, index) => (
+              <div
+                key={index}
+                className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-end bg-gray-50 p-3 rounded-md border border-gray-200"
+              >
+                <div className="sm:col-span-3">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Type</label>
+                  <select
+                    value={speaker.type}
+                    onChange={(e) =>
+                      handleSpeakerChange(index, 'type', e.target.value as 'speaker' | 'musical-number')
+                    }
+                    className="w-full rounded border border-gray-300 p-1.5 text-xs bg-white"
+                  >
+                    <option value="speaker">Speaker</option>
+                    <option value="musical-number font-semibold">Musical Number</option>
+                  </select>
+                </div>
+
+                <div className="sm:col-span-4">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    {speaker.type === 'speaker' ? 'Speaker Name' : 'Performer / Group'}
+                  </label>
+                  <input
+                    type="text"
+                    value={speaker.name}
+                    onChange={(e) => handleSpeakerChange(index, 'name', e.target.value)}
+                    placeholder={speaker.type === 'speaker' ? 'Sister Wilson' : 'Ward Choir'}
+                    className="w-full rounded border border-gray-300 p-1.5 text-xs bg-white"
+                  />
+                </div>
+
+                <div className="sm:col-span-4">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    {speaker.type === 'speaker' ? 'Topic' : 'Title / Hymn Name'}
+                  </label>
+                  <input
+                    type="text"
+                    value={speaker.topic}
+                    onChange={(e) => handleSpeakerChange(index, 'topic', e.target.value)}
+                    placeholder={speaker.type === 'speaker' ? 'Ministering with Christlike Love' : 'I Know That My Redeemer Lives'}
+                    className="w-full rounded border border-gray-300 p-1.5 text-xs bg-white"
+                  />
+                </div>
+
+                <div className="sm:col-span-1 text-right">
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveSpeaker(index)}
+                    className="w-full sm:w-auto px-2 py-1.5 text-xs font-medium text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* SECCIÓN 4: Anuncios y Asuntos del Barrio/Estaca */}
       <div className="border-b border-gray-200 pb-6">
         <h2 className="text-lg font-bold text-gray-800 mb-4">Announcements & Business</h2>
         <div className="space-y-4">
@@ -246,14 +381,14 @@ export default function MeetingForm({ initialData }: MeetingFormProps) {
         </div>
       </div>
 
-      {/* Array de discursantes serializado como JSON */}
+      {/* Input oculto que envía el estado formateado a la Server Action */}
       <input
         type="hidden"
         name="speakersJson"
-        value={JSON.stringify(initialData?.speakers || [])}
+        value={JSON.stringify(speakers)}
       />
 
-      {/* Botón de envío habilitado con indicador de carga */}
+      {/* Botón de envío */}
       <div className="flex justify-end pt-2">
         <button
           type="submit"

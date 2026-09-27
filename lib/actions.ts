@@ -92,12 +92,24 @@ export async function createMeeting(prevState: FormState, formData: FormData): P
     speakers,
   };
 
-  try {
+try {
     await addMeeting(meetingPayload);
-  } catch (error) {
-    console.error('Error creating meeting:', error);
-    return { message: 'Database Error: Failed to create sacrament meeting record.' };
+ } catch (error: unknown) {
+  console.error('Error creating meeting:', error);
+
+  const dbError = error as { code?: string; message?: string };
+
+  if (dbError?.code === '23505' || dbError?.message?.includes('meetings_date_key')) {
+    return {
+      message: 'A meeting already exists for the selected date.',
+      errors: {
+        date: ['A sacrament meeting is already scheduled for this date. Please choose another date or edit the existing meeting.'],
+      },
+    };
   }
+
+  return { message: 'Database Error: Failed to create sacrament meeting record.' };
+}
 
   revalidatePath('/meetings');
   redirect('/meetings');
