@@ -25,6 +25,7 @@ export async function GET(
 
     return NextResponse.json(meeting);
   } catch (error) {
+    console.error(`Error in GET /api/meetings/${id}:`, error);
     return NextResponse.json(
       { error: 'Failed to fetch meeting' },
       { status: 500 }

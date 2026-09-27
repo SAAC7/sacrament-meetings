@@ -1,33 +1,34 @@
+// components/MeetingCard.tsx
 import Link from 'next/link';
 import { SacramentMeeting } from '@/lib/types';
+import { deleteMeeting } from '@/lib/actions';
 
 export default function MeetingCard({ meeting }: { meeting: SacramentMeeting }) {
-  // Convertimos la fecha a string por seguridad contra objetos Date de Postgres
-  const formattedDate = String(meeting.date);
+  const deleteWithId = deleteMeeting.bind(null, meeting.id);
 
   return (
-    <div className="border border-gray-200 rounded-lg shadow-sm p-5 bg-white hover:shadow-md transition duration-200">
-      <div className="flex justify-between items-center border-b pb-3 mb-3">
-        <h2 className="text-lg font-bold text-gray-800">{formattedDate}</h2>
-        <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded uppercase tracking-wider font-semibold">
-          {meeting.meetingType}
-        </span>
+    <div className="bg-white p-6 rounded-lg shadow border border-gray-200 flex justify-between items-center">
+      <div>
+        <h2 className="text-xl font-bold text-gray-800">{meeting.date} - {meeting.meetingType}</h2>
+        <p className="text-gray-600">Presiding: {meeting.presiding}</p>
+        <p className="text-gray-600">Conducting: {meeting.conducting}</p>
       </div>
-      <div className="space-y-1 mb-4">
-        <p className="text-sm text-gray-600">
-          <strong className="text-gray-800">Chaired by:</strong> {meeting.presiding}
-        </p>
-        <p className="text-sm text-gray-600">
-          <strong className="text-gray-800">Conducting:</strong> {meeting.conducting}
-        </p>
+      <div className="flex gap-2">
+        <Link
+          href={`/meetings/${meeting.id}/edit`}
+          className="px-3 py-1.5 bg-amber-600 text-white text-sm font-medium rounded hover:bg-amber-700"
+        >
+          Edit
+        </Link>
+        <form action={deleteWithId}>
+          <button
+            type="submit"
+            className="px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700"
+          >
+            Delete
+          </button>
+        </form>
       </div>
-
-      <Link
-        href={`/meetings/${meeting.id}`}
-        className="inline-block bg-blue-50 text-blue-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-100 transition-colors"
-      >
-        View the full schedule &rarr;
-      </Link>
     </div>
   );
 }

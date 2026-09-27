@@ -1,32 +1,42 @@
-// lib/meetings-db.ts
 import { neon } from '@neondatabase/serverless';
 import { SacramentMeeting } from './types';
 
 const sql = neon(process.env.DATABASE_URL || '');
 
-// Función para obtener todas las reuniones (con filtro opcional por fecha)
+interface MeetingRow extends Omit<SacramentMeeting, 'date'> {
+  date: Date | string;
+}
 
-export async function getMeetings(query?: string, page: number = 1, limit: number = 10): Promise<SacramentMeeting[]> {
-
+export async function getMeetings(
+  query?: string,
+  page: number = 1,
+  limit: number = 10,
+  dateFilter?: string
+): Promise<SacramentMeeting[]> {
   const offset = (page - 1) * limit;
   let rows;
-  if (query) {
+
+  if (dateFilter) {
+    rows = await sql`
+      SELECT 
+        id, date, meeting_type AS "meetingType", presiding, conducting, announcements,
+        opening_hymn AS "openingHymn", opening_prayer AS "openingPrayer",
+        ward_business AS "wardBusiness", stake_business AS "stakeBusiness",
+        sacrament_hymn AS "sacramentHymn", speakers, closing_hymn AS "closingHymn",
+        closing_prayer AS "closingPrayer"
+      FROM meetings 
+      WHERE date = ${dateFilter}::date
+      ORDER BY date DESC 
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+  } else if (query) {
     const formattedQuery = `%${query}%`;
     rows = await sql`
       SELECT 
-        id,
-        date,
-        meeting_type AS "meetingType",
-        presiding,
-        conducting,
-        announcements,
-        opening_hymn AS "openingHymn",
-        opening_prayer AS "openingPrayer",
-        ward_business AS "wardBusiness",
-        stake_business AS "stakeBusiness",
-        sacrament_hymn AS "sacramentHymn",
-        speakers,
-        closing_hymn AS "closingHymn",
+        id, date, meeting_type AS "meetingType", presiding, conducting, announcements,
+        opening_hymn AS "openingHymn", opening_prayer AS "openingPrayer",
+        ward_business AS "wardBusiness", stake_business AS "stakeBusiness",
+        sacrament_hymn AS "sacramentHymn", speakers, closing_hymn AS "closingHymn",
         closing_prayer AS "closingPrayer"
       FROM meetings 
       WHERE presiding ILIKE ${formattedQuery}
@@ -42,19 +52,10 @@ export async function getMeetings(query?: string, page: number = 1, limit: numbe
   } else {
     rows = await sql`
       SELECT 
-        id,
-        date,
-        meeting_type AS "meetingType",
-        presiding,
-        conducting,
-        announcements,
-        opening_hymn AS "openingHymn",
-        opening_prayer AS "openingPrayer",
-        ward_business AS "wardBusiness",
-        stake_business AS "stakeBusiness",
-        sacrament_hymn AS "sacramentHymn",
-        speakers,
-        closing_hymn AS "closingHymn",
+        id, date, meeting_type AS "meetingType", presiding, conducting, announcements,
+        opening_hymn AS "openingHymn", opening_prayer AS "openingPrayer",
+        ward_business AS "wardBusiness", stake_business AS "stakeBusiness",
+        sacrament_hymn AS "sacramentHymn", speakers, closing_hymn AS "closingHymn",
         closing_prayer AS "closingPrayer"
       FROM meetings 
       ORDER BY date DESC 
@@ -62,45 +63,69 @@ export async function getMeetings(query?: string, page: number = 1, limit: numbe
     `;
   }
 
-  return rows.map((row: any) => ({
+  return (rows as unknown as MeetingRow[]).map((row) => ({
     ...row,
     date: row.date instanceof Date ? row.date.toISOString().split('T')[0] : String(row.date),
   })) as SacramentMeeting[];
 }
 
-
-// Función para obtener una sola reunión por su ID
-
 export async function getMeetingById(id: number): Promise<SacramentMeeting | null> {
   const rows = await sql`
     SELECT 
-      id,
-      date,
-      meeting_type AS "meetingType",
-      presiding,
-      conducting,
-      announcements,
-      opening_hymn AS "openingHymn",
-      opening_prayer AS "openingPrayer",
-      ward_business AS "wardBusiness",
-      stake_business AS "stakeBusiness",
-      sacrament_hymn AS "sacramentHymn",
-      speakers,
-      closing_hymn AS "closingHymn",
+      id, date, meeting_type AS "meetingType", presiding, conducting, announcements,
+      opening_hymn AS "openingHymn", opening_prayer AS "openingPrayer",
+      ward_business AS "wardBusiness", stake_business AS "stakeBusiness",
+      sacrament_hymn AS "sacramentHymn", speakers, closing_hymn AS "closingHymn",
       closing_prayer AS "closingPrayer"
     FROM meetings 
     WHERE id = ${id}
   `;
   if (!rows[0]) return null;
 
-  const row = rows[0] as any;
+  const row = rows[0] as unknown as MeetingRow;
   return {
     ...row,
     date: row.date instanceof Date ? row.date.toISOString().split('T')[0] : String(row.date),
   } as SacramentMeeting;
 }
 
-// Stubs para la Semana 04
-export async function addMeeting(meeting: any) { throw new Error('Not implemented until Week 04'); }
-export async function updateMeeting(id: number, meeting: any) { throw new Error('Not implemented until Week 04'); }
-export async function deleteMeeting(id: number) { throw new Error('Not implemented until Week 04'); }
+export async function addMeeting(meeting: Omit<SacramentMeeting, 'id'>) {
+  const rows = await sql`
+    INSERT INTO meetings (
+      date, meeting_type, presiding, conducting, announcements,
+      opening_hymn, opening_prayer, ward_business, stake_business,
+      sacrament_hymn, speakers, closing_hymn, closing_prayer
+    ) VALUES (
+      ${meeting.date}, ${meeting.meetingType}, ${meeting.presiding}, ${meeting.conducting},
+      ${meeting.announcements || null}, ${meeting.openingHymn || null}, ${meeting.openingPrayer || null},
+      ${meeting.wardBusiness || null}, ${meeting.stakeBusiness || null}, ${meeting.sacramentHymn || null},
+      ${JSON.stringify(meeting.speakers || [])}::jsonb, ${meeting.closingHymn || null}, ${meeting.closingPrayer || null}
+    )
+    RETURNING id
+  `;
+  return rows[0];
+}
+
+export async function updateMeetingDb(id: number, meeting: Partial<SacramentMeeting>) {
+  await sql`
+    UPDATE meetings SET
+      date = ${meeting.date},
+      meeting_type = ${meeting.meetingType},
+      presiding = ${meeting.presiding},
+      conducting = ${meeting.conducting},
+      announcements = ${meeting.announcements || null},
+      opening_hymn = ${meeting.openingHymn || null},
+      opening_prayer = ${meeting.openingPrayer || null},
+      ward_business = ${meeting.wardBusiness || null},
+      stake_business = ${meeting.stakeBusiness || null},
+      sacrament_hymn = ${meeting.sacramentHymn || null},
+      speakers = ${JSON.stringify(meeting.speakers || [])}::jsonb,
+      closing_hymn = ${meeting.closingHymn || null},
+      closing_prayer = ${meeting.closingPrayer || null}
+    WHERE id = ${id}
+  `;
+}
+
+export async function deleteMeetingDb(id: number) {
+  await sql`DELETE FROM meetings WHERE id = ${id}`;
+}
