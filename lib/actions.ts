@@ -16,7 +16,7 @@ export type FormState = {
 const MeetingFormSchema = z.object({
   date: z.string().min(1, 'Date is required'),
   meetingType: z.enum(['testimony', 'regular', 'stake', 'general'] as const, {
-    required_error: 'Meeting type is required',
+    message: 'Meeting type is required',
   }),
   presiding: z.string().min(1, 'Presiding officer is required'),
   conducting: z.string().min(1, 'Conducting officer is required'),
