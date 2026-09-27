@@ -12,19 +12,19 @@ export default function Home() {
       </div>
 
       <div className="rounded-2xl overflow-hidden shadow-xl mb-10 relative h-64 sm:h-96 w-full bg-gray-200">
-        {/* Asegúrate de poner una imagen llamada chapel.jpg en la carpeta public/ */}
-        <Image 
-          src="/chapel.jpg" 
-          alt="Chapel of the Church" 
-          fill
-          className="object-cover"
-          priority
-        />
-      </div>
+  <Image
+    src="/chapel.jpg"
+    alt="Chapel of the Church"
+    width={800}
+    height={500}
+    className="w-full h-full object-cover"
+    priority
+  />
+</div>
 
       <div className="text-center">
-        <Link 
-          href="/meetings" 
+        <Link
+          href="/meetings"
           className="inline-block bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors shadow-md"
         >
           Enter the Meeting Planner
